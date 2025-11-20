@@ -6,8 +6,8 @@ import { NeonButton, NeonInput, Badge } from './components/Common';
 import { VideoCall } from './components/VideoCall';
 import { LandingPage } from './components/LandingPage';
 import { authService } from './services/auth';
-import { checkCompatibility, generateIceBreaker } from './services/geminiService';
-import { Heart, X, MessageCircle, User, LogOut, Ghost, Zap, Send, Video, Phone, AlertTriangle, Search, Bell, CheckCircle2, RotateCcw, Menu, Lock, Camera, Upload, Image as ImageIcon, Edit2, Save, ShieldBan, Drill, CalendarHeart } from 'lucide-react';
+import { generateIceBreaker } from './services/geminiService';
+import { Heart, X, MessageCircle, User, LogOut, Ghost, Zap, Send, Video, Phone, AlertTriangle, Search, Bell, CheckCircle2, RotateCcw, Lock, Camera, Upload, Edit2, Save, ShieldBan, Drill, CalendarHeart } from 'lucide-react';
 
 export default function App() {
   // -- State --
