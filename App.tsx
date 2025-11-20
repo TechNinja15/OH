@@ -1,15 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile, MatchProfile, AppView, CallType, ChatSession, Message, Notification } from './types';
-import { MOCK_MATCHES, MOCK_INTERESTS, MOCK_NOTIFICATIONS, APP_NAME } from './constants';
+import { MOCK_MATCHES, MOCK_INTERESTS, MOCK_NOTIFICATIONS, APP_NAME, AVATAR_PRESETS } from './constants';
 import { NeonButton, NeonInput, Badge } from './components/Common';
 import { VideoCall } from './components/VideoCall';
+import { LandingPage } from './components/LandingPage';
+import { authService } from './services/auth';
 import { checkCompatibility, generateIceBreaker } from './services/geminiService';
-import { Heart, X, MessageCircle, User, LogOut, Ghost, Zap, Send, Video, Phone, AlertTriangle, Search, Bell, CheckCircle2, RotateCcw, Menu, Lock } from 'lucide-react';
+import { Heart, X, MessageCircle, User, LogOut, Ghost, Zap, Send, Video, Phone, AlertTriangle, Search, Bell, CheckCircle2, RotateCcw, Menu, Lock, Camera, Upload, Image as ImageIcon, Edit2, Save, ShieldBan, Drill, CalendarHeart } from 'lucide-react';
 
 export default function App() {
   // -- State --
-  const [view, setView] = useState<AppView>(AppView.LOGIN);
+  const [view, setView] = useState<AppView>(AppView.LANDING);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   
   // Login Form State
@@ -17,8 +19,16 @@ export default function App() {
   const [authStep, setAuthStep] = useState<'email' | 'verify' | 'profile'>('email');
   
   // Onboarding State
-  const [tempProfile, setTempProfile] = useState<Partial<UserProfile>>({ interests: [], gender: 'Prefer not to say' });
+  const [tempProfile, setTempProfile] = useState<Partial<UserProfile>>({ 
+    interests: [], 
+    gender: 'Male', // Default
+    avatar: AVATAR_PRESETS[0]
+  });
   
+  // Profile Editing State
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
+
   // Matching State
   const [matchQueue, setMatchQueue] = useState<MatchProfile[]>([]);
   const [matches, setMatches] = useState<MatchProfile[]>([]);
@@ -39,11 +49,36 @@ export default function App() {
 
   // -- Effects --
   useEffect(() => {
-    // Simulate fetching matches on load
-    setMatchQueue(MOCK_MATCHES);
+    // Check for existing session
+    const savedUser = authService.getCurrentUser();
+    if (savedUser) {
+      setCurrentUser(savedUser);
+      setView(AppView.HOME);
+      loadMatchesForUser(savedUser);
+    } else {
+      setView(AppView.LANDING);
+      // Load generic matches for background or initial state if needed, but strictly we wait for login
+      setMatchQueue(MOCK_MATCHES); 
+    }
   }, []);
 
+  // -- Helper to filter matches based on gender --
+  const loadMatchesForUser = (user: UserProfile) => {
+    const targetGender = user.gender === 'Male' ? 'Female' : 'Male';
+    // Filter matches: Must match target gender AND not be the user themselves
+    const filtered = MOCK_MATCHES.filter(m => m.gender === targetGender && m.id !== user.id);
+    setMatchQueue(filtered);
+  };
+
   // -- Handlers --
+
+  const handleLogout = () => {
+    authService.logout();
+    setCurrentUser(null);
+    setAuthStep('email');
+    setIsEditingProfile(false);
+    setView(AppView.LANDING);
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,25 +94,57 @@ export default function App() {
     setAuthStep('profile');
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const base64 = await authService.uploadAvatar(file);
+      if (isEditing) {
+        setEditForm(prev => ({ ...prev, avatar: base64 }));
+      } else {
+        setTempProfile(prev => ({ ...prev, avatar: base64 }));
+      }
+    }
+  };
+
   const handleCreateProfile = () => {
     const newUser: UserProfile = {
       id: 'u1',
       anonymousId: `User#${Math.floor(Math.random() * 10000).toString(16).toUpperCase()}`,
       realName: tempProfile.realName || 'Anonymous Student',
-      gender: tempProfile.gender || 'Prefer not to say',
+      gender: tempProfile.gender || 'Male',
       universityEmail: email,
       isVerified: true,
       branch: tempProfile.branch || 'General',
       year: tempProfile.year || 'Freshman',
       interests: tempProfile.interests || [],
       bio: tempProfile.bio || '',
+      avatar: tempProfile.avatar || AVATAR_PRESETS[0]
     };
+    
     setCurrentUser(newUser);
+    authService.login(newUser); // Persist user
+    loadMatchesForUser(newUser); // Load compatible matches
     setView(AppView.HOME);
   };
 
-  const toggleInterest = (interest: string) => {
-    setTempProfile(prev => {
+  const handleSaveProfile = () => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, ...editForm } as UserProfile;
+    setCurrentUser(updatedUser);
+    authService.login(updatedUser); // Update persistence
+    setIsEditingProfile(false);
+  };
+
+  const startEditing = () => {
+    if (!currentUser) return;
+    setEditForm(currentUser);
+    setIsEditingProfile(true);
+  };
+
+  const toggleInterest = (interest: string, isEditing: boolean = false) => {
+    const setter = isEditing ? setEditForm : setTempProfile;
+    
+    setter(prev => {
       const current = prev.interests || [];
       if (current.includes(interest)) return { ...prev, interests: current.filter(i => i !== interest) };
       if (current.length >= 5) return prev;
@@ -159,6 +226,27 @@ export default function App() {
     setMessageInput(suggestion);
   };
 
+  const handleBlockUser = (matchId: string) => {
+    if (!confirm("Are you sure you want to block this user? This action cannot be undone.")) return;
+
+    // Remove from matches
+    setMatches(prev => prev.filter(m => m.id !== matchId));
+    
+    // Clear chat session (optional, logic depends on backend really)
+    setChatSessions(prev => {
+      const newState = { ...prev };
+      delete newState[matchId];
+      return newState;
+    });
+
+    // Reset active chat and view
+    setActiveChatId(null);
+    setView(AppView.MATCHES);
+    
+    // Optional: Add a system notification or alert
+    alert("User blocked successfully.");
+  };
+
   const startCall = (type: CallType) => {
     setCallType(type);
     setIsCallActive(true);
@@ -175,8 +263,15 @@ export default function App() {
       {/* Background decorative elements */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon opacity-10 blur-[150px] rounded-full animate-pulse" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-600 opacity-10 blur-[150px] rounded-full animate-pulse" />
+      
+      <button 
+        onClick={() => setView(AppView.LANDING)}
+        className="absolute top-6 left-6 text-gray-500 hover:text-white flex items-center gap-2 z-20"
+      >
+        <RotateCcw className="w-4 h-4" /> Back to Home
+      </button>
 
-      <div className="w-full max-w-md z-10 bg-gray-900/50 backdrop-blur-xl p-8 rounded-3xl border border-gray-800 shadow-2xl my-auto">
+      <div className="w-full max-w-2xl z-10 bg-gray-900/50 backdrop-blur-xl p-8 rounded-3xl border border-gray-800 shadow-2xl my-auto max-h-[85vh] overflow-y-auto custom-scrollbar">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-black text-white mb-2 tracking-tighter flex flex-col items-center justify-center gap-2 uppercase">
             <span>Other</span>
@@ -223,6 +318,35 @@ export default function App() {
           <div className="space-y-6 animate-fade-in">
             <h2 className="text-xl font-bold text-white">Create Your Persona</h2>
             
+            {/* Avatar Selection */}
+            <div className="flex flex-col items-center mb-6">
+              <label className="block text-sm text-gray-400 mb-3">Choose Avatar or Upload Photo</label>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-24 h-24 rounded-full bg-gray-800 border-2 border-neon overflow-hidden relative group">
+                  {tempProfile.avatar ? (
+                    <img src={tempProfile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <Ghost className="w-12 h-12 text-gray-600 m-auto mt-5" />
+                  )}
+                  <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <Upload className="w-6 h-6 text-white" />
+                    <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, false)} />
+                  </label>
+                </div>
+              </div>
+              <div className="flex gap-2 overflow-x-auto max-w-full pb-2 custom-scrollbar">
+                {AVATAR_PRESETS.map((avatar, i) => (
+                  <button 
+                    key={i}
+                    onClick={() => setTempProfile({...tempProfile, avatar})}
+                    className={`w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0 ${tempProfile.avatar === avatar ? 'border-neon scale-110' : 'border-gray-700 opacity-50 hover:opacity-100'}`}
+                  >
+                    <img src={avatar} alt={`Preset ${i}`} className="w-full h-full bg-gray-800" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Real Name</label>
@@ -241,11 +365,8 @@ export default function App() {
                   value={tempProfile.gender}
                   onChange={e => setTempProfile({...tempProfile, gender: e.target.value})}
                 >
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Non-binary</option>
-                  <option>Other</option>
-                  <option>Prefer not to say</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
                 </select>
               </div>
 
@@ -279,7 +400,7 @@ export default function App() {
                 {MOCK_INTERESTS.map(interest => (
                   <button
                     key={interest}
-                    onClick={() => toggleInterest(interest)}
+                    onClick={() => toggleInterest(interest, false)}
                     className={`px-3 py-1 rounded-full text-xs border transition-all ${
                       (tempProfile.interests || []).includes(interest)
                         ? 'bg-neon border-neon text-white shadow-neon-sm'
@@ -309,6 +430,18 @@ export default function App() {
   );
 
   const renderHome = () => {
+    if (matchQueue.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fade-in pb-24 md:pb-8">
+          <div className="w-32 h-32 bg-gray-900 rounded-full flex items-center justify-center mb-6 border border-gray-800 shadow-neon-sm">
+             <Search className="w-12 h-12 text-neon" />
+          </div>
+          <h2 className="text-3xl font-bold mb-2 text-white">No Matches Found</h2>
+          <p className="text-gray-500 mb-8 max-w-md">There are no profiles matching your criteria right now.</p>
+        </div>
+      );
+    }
+
     if (currentSwipeIndex >= matchQueue.length) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fade-in pb-24 md:pb-8">
@@ -327,7 +460,7 @@ export default function App() {
     const profile = matchQueue[currentSwipeIndex];
 
     return (
-      // Added pb-24 for mobile bottom nav clearance and changed justify-center to ensure content is visible
+      // Main Container
       <div className="relative w-full h-full flex flex-col items-center justify-center p-4 overflow-hidden pb-28 md:pb-4">
          {/* Desktop Background Decor */}
          <div className="absolute inset-0 hidden md:block pointer-events-none opacity-20">
@@ -335,8 +468,9 @@ export default function App() {
             <div className="absolute bottom-20 right-20 w-64 h-64 bg-blue-600 rounded-full blur-[120px]" />
          </div>
 
-         {/* Card Container - Responsive Height using VH for mobile */}
-         <div className="relative w-full max-w-sm md:w-[400px] h-[55vh] min-h-[400px] md:h-[650px] flex-shrink-0 mt-4 md:mt-0">
+         {/* Card Container */}
+         {/* Adjusted height for desktop: max-h-[65vh] to leave room for buttons */}
+         <div className="relative w-full max-w-sm md:w-[400px] h-[55vh] md:h-[65vh] min-h-[400px] flex-shrink-0 mt-4 md:mt-0">
             {/* Back Cards Stack Effect */}
             {currentSwipeIndex + 1 < matchQueue.length && (
                <div className="absolute inset-0 bg-gray-800 rounded-3xl transform scale-95 translate-y-4 opacity-50 border border-gray-700" />
@@ -356,12 +490,18 @@ export default function App() {
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black z-10" />
               
-              {/* Visual Pattern */}
+              {/* Image or Pattern */}
               <div className="absolute inset-0 bg-[#080808] flex flex-col items-center justify-center overflow-hidden">
-                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-                 <span className="text-[10rem] font-black text-gray-800 select-none opacity-30 rotate-12 flex items-center justify-center w-full h-full">
-                   {profile.anonymousId.slice(-2)}
-                 </span>
+                 {profile.avatar ? (
+                   <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover opacity-80" />
+                 ) : (
+                   <>
+                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                    <span className="text-[10rem] font-black text-gray-800 select-none opacity-30 rotate-12 flex items-center justify-center w-full h-full">
+                      {profile.anonymousId.slice(-2)}
+                    </span>
+                   </>
+                 )}
               </div>
 
               {/* Card Content */}
@@ -400,7 +540,7 @@ export default function App() {
             </div>
          </div>
 
-         {/* Controls - Responsive with Margin Bottom for Nav */}
+         {/* Controls */}
          <div className="flex items-center gap-8 mt-6 md:mt-8 z-30">
             <button 
               onClick={() => handleSwipe('left')}
@@ -454,8 +594,12 @@ export default function App() {
               className="bg-gray-900/50 hover:bg-gray-800 p-4 rounded-2xl border border-gray-800 flex items-center justify-between hover:border-neon/50 cursor-pointer transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-gray-800 to-black rounded-full flex items-center justify-center border border-gray-700 group-hover:border-neon relative">
-                  <span className="font-bold text-gray-400 group-hover:text-neon text-lg">{match.anonymousId.substring(5)}</span>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center border border-gray-700 group-hover:border-neon relative overflow-hidden bg-gray-800">
+                  {match.avatar ? (
+                    <img src={match.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold text-gray-400 group-hover:text-neon text-lg">{match.anonymousId.substring(5)}</span>
+                  )}
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full"></span>
                 </div>
                 <div>
@@ -500,7 +644,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Added pb-24 for mobile nav clearance */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 pb-24 md:pb-4">
           {notifications.length === 0 ? (
             <div className="text-center py-20 text-gray-600">
@@ -561,8 +704,12 @@ export default function App() {
             </button>
             
             <div className="flex items-center gap-3">
-               <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-700 rounded-full flex items-center justify-center text-xs font-bold text-gray-300 border border-gray-600">
-                  {match.anonymousId.slice(-2)}
+               <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center overflow-hidden border border-gray-600">
+                  {match.avatar ? (
+                    <img src={match.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-gray-300">{match.anonymousId.slice(-2)}</span>
+                  )}
                </div>
                <div>
                   <h3 className="font-bold text-white leading-tight">{match.realName}</h3>
@@ -588,6 +735,13 @@ export default function App() {
              >
                 <Video className="w-5 h-5" />
              </button>
+             <button 
+               onClick={() => handleBlockUser(match.id)}
+               className="p-3 bg-gray-800/50 rounded-full text-red-400 hover:text-red-600 hover:bg-red-900/20 transition-all ml-2"
+               title="Block User"
+             >
+                <ShieldBan className="w-5 h-5" />
+             </button>
           </div>
         </div>
 
@@ -603,8 +757,12 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-dots-pattern">
           {session.messages.length === 0 && (
              <div className="text-center py-10 animate-fade-in">
-               <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-800">
-                 <Ghost className="w-8 h-8 text-gray-600" />
+               <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-800 overflow-hidden">
+                  {match.avatar ? (
+                    <img src={match.avatar} alt="Match" className="w-full h-full object-cover opacity-50" />
+                  ) : (
+                    <Ghost className="w-8 h-8 text-gray-600" />
+                  )}
                </div>
                <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">You matched based on common interests in <span className="text-white font-bold">{match.interests[0]}</span>. Say hello!</p>
                
@@ -670,44 +828,136 @@ export default function App() {
   };
 
   const renderProfile = () => (
-    // Added pb-24 for mobile nav clearance
     <div className="h-full flex flex-col p-6 overflow-y-auto custom-scrollbar pb-24 md:pb-6">
-      <h2 className="text-3xl font-black mb-8">My Profile</h2>
+      <h2 className="text-3xl font-black mb-8 flex justify-between items-center">
+        <span>My Profile</span>
+        {!isEditingProfile && (
+          <button onClick={startEditing} className="text-sm font-bold text-neon border border-neon px-3 py-1 rounded-full hover:bg-neon hover:text-white transition-all flex items-center gap-2">
+            <Edit2 className="w-3 h-3" /> Edit
+          </button>
+        )}
+      </h2>
       
-      <div className="bg-gray-900/50 border border-gray-800 p-8 rounded-3xl relative overflow-hidden mb-6">
-         <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Ghost className="w-32 h-32" />
-         </div>
-         
-         <div className="relative z-10">
-            <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Identity</p>
-            <h3 className="text-4xl font-bold text-white mb-1">{currentUser?.realName}</h3>
-            <p className="text-neon font-mono text-sm mb-4">{currentUser?.anonymousId}</p>
+      {isEditingProfile ? (
+        <div className="bg-gray-900/50 border border-gray-800 p-6 rounded-3xl mb-6 animate-fade-in">
+           <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Edit2 className="w-5 h-5 text-neon" /> Edit Details</h3>
+           
+           {/* Avatar Upload in Edit Mode */}
+           <div className="flex flex-col items-center mb-6">
+              <div className="relative w-24 h-24 rounded-full bg-gray-800 border-2 border-neon overflow-hidden group cursor-pointer">
+                 <img src={editForm.avatar || currentUser?.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                 <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="w-6 h-6 text-white" />
+                    <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, true)} />
+                 </label>
+              </div>
+              <span className="text-xs text-gray-400 mt-2">Tap to change photo</span>
+              
+              <div className="flex gap-2 mt-4 overflow-x-auto w-full justify-center">
+                {AVATAR_PRESETS.slice(0, 5).map((avatar, i) => (
+                  <button 
+                    key={i}
+                    onClick={() => setEditForm({...editForm, avatar})}
+                    className={`w-8 h-8 rounded-full border overflow-hidden ${editForm.avatar === avatar ? 'border-neon' : 'border-gray-700'}`}
+                  >
+                    <img src={avatar} alt="" className="w-full h-full" />
+                  </button>
+                ))}
+              </div>
+           </div>
 
-            <div className="flex items-center gap-2 mb-6 text-sm text-gray-400">
-              <span className="bg-gray-800 px-3 py-1 rounded-full">{currentUser?.gender}</span>
-              <span className="bg-gray-800 px-3 py-1 rounded-full">{currentUser?.branch}</span>
-              <span className="bg-gray-800 px-3 py-1 rounded-full">{currentUser?.year}</span>
-            </div>
-
-            {currentUser?.isVerified && (
-               <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-900/20 border border-green-900 rounded-full text-xs text-green-500 font-medium mb-6">
-                  <CheckCircle2 className="w-3 h-3" /> Verified Student
+           <div className="space-y-4">
+             <div>
+               <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Real Name</label>
+               <NeonInput value={editForm.realName} onChange={e => setEditForm({...editForm, realName: e.target.value})} />
+             </div>
+             <div className="grid grid-cols-2 gap-4">
+               <div>
+                 <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Branch</label>
+                 <NeonInput value={editForm.branch} onChange={e => setEditForm({...editForm, branch: e.target.value})} />
                </div>
-            )}
+               <div>
+                 <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Year</label>
+                 <select 
+                   className="w-full bg-gray-900 border-2 border-gray-800 text-white px-4 py-3 rounded-xl outline-none focus:border-neon"
+                   value={editForm.year}
+                   onChange={e => setEditForm({...editForm, year: e.target.value})}
+                 >
+                    <option>Freshman</option>
+                    <option>Sophomore</option>
+                    <option>Junior</option>
+                    <option>Senior</option>
+                    <option>Grad</option>
+                 </select>
+               </div>
+             </div>
+             <div>
+               <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Bio</label>
+               <textarea 
+                 className="w-full bg-gray-900 border-2 border-gray-800 text-white px-4 py-3 rounded-xl outline-none focus:border-neon h-24 resize-none"
+                 value={editForm.bio}
+                 onChange={e => setEditForm({...editForm, bio: e.target.value})}
+               />
+             </div>
+             
+             <div className="flex gap-3 pt-4">
+                <NeonButton onClick={handleSaveProfile} className="flex-1 flex items-center justify-center gap-2">
+                   <Save className="w-4 h-4" /> Save Changes
+                </NeonButton>
+                <NeonButton variant="secondary" onClick={() => setIsEditingProfile(false)} className="flex-1">
+                   Cancel
+                </NeonButton>
+             </div>
+           </div>
+        </div>
+      ) : (
+        // Display Mode
+        <div className="bg-gray-900/50 border border-gray-800 p-8 rounded-3xl relative overflow-hidden mb-6">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Ghost className="w-32 h-32" />
+          </div>
+          
+          <div className="relative z-10">
+              <div className="flex items-center gap-6 mb-6">
+                <div className="w-24 h-24 rounded-full border-2 border-neon overflow-hidden bg-black">
+                  {currentUser?.avatar ? (
+                    <img src={currentUser.avatar} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-600"><User className="w-10 h-10" /></div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Identity</p>
+                  <h3 className="text-4xl font-bold text-white mb-1">{currentUser?.realName}</h3>
+                  <p className="text-neon font-mono text-sm">{currentUser?.anonymousId}</p>
+                </div>
+              </div>
 
-            <div className="bg-black/30 p-4 rounded-xl border border-gray-800/50 mb-6">
-               <p className="text-gray-300 italic">"{currentUser?.bio || "No bio set"}"</p>
-            </div>
+              <div className="flex items-center gap-2 mb-6 text-sm text-gray-400">
+                <span className="bg-gray-800 px-3 py-1 rounded-full text-white">{currentUser?.gender}</span>
+                <span className="bg-gray-800 px-3 py-1 rounded-full">{currentUser?.branch}</span>
+                <span className="bg-gray-800 px-3 py-1 rounded-full">{currentUser?.year}</span>
+              </div>
 
-            <h4 className="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Interests</h4>
-            <div className="flex flex-wrap gap-2">
-               {currentUser?.interests.map(i => (
-                  <span key={i} className="text-white text-xs bg-gray-800 px-3 py-1 rounded-full border border-gray-700">{i}</span>
-               ))}
-            </div>
-         </div>
-      </div>
+              {currentUser?.isVerified && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-900/20 border border-green-900 rounded-full text-xs text-green-500 font-medium mb-6">
+                    <CheckCircle2 className="w-3 h-3" /> Verified Student
+                </div>
+              )}
+
+              <div className="bg-black/30 p-4 rounded-xl border border-gray-800/50 mb-6">
+                <p className="text-gray-300 italic">"{currentUser?.bio || "No bio set"}"</p>
+              </div>
+
+              <h4 className="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Interests</h4>
+              <div className="flex flex-wrap gap-2">
+                {currentUser?.interests.map(i => (
+                    <span key={i} className="text-white text-xs bg-gray-800 px-3 py-1 rounded-full border border-gray-700">{i}</span>
+                ))}
+              </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3">
         <NeonButton variant="secondary" className="w-full justify-start" onClick={() => alert('Settings not implemented in demo.')}>
@@ -716,18 +966,43 @@ export default function App() {
         <NeonButton variant="secondary" className="w-full justify-start" onClick={() => alert('Report submitted.')}>
           <AlertTriangle className="w-4 h-4 mr-2" /> <span className="mr-auto">Report an Issue</span>
         </NeonButton>
-        <NeonButton variant="danger" className="w-full justify-start mt-4" onClick={() => setView(AppView.LOGIN)}>
+        <NeonButton variant="danger" className="w-full justify-start mt-4" onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-2" /> <span className="mr-auto">Logout</span>
         </NeonButton>
       </div>
 
       <div className="mt-auto pt-8 text-center">
-         <p className="text-gray-600 text-xs">Version 1.0.0 • {APP_NAME}</p>
+         <p className="text-gray-600 text-xs">Version 1.2.0 • {APP_NAME}</p>
+      </div>
+    </div>
+  );
+
+  const renderVirtualDate = () => (
+    <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fade-in pb-24 md:pb-8">
+      <div className="relative mb-8">
+        <Ghost className="w-40 h-40 text-gray-800" />
+        <div className="absolute -bottom-2 -right-4 animate-bounce">
+          <Drill className="w-20 h-20 text-neon transform -rotate-12" />
+        </div>
+        <div className="absolute -top-4 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded animate-pulse">
+          WIP
+        </div>
+      </div>
+      <h2 className="text-4xl font-black mb-4 text-white uppercase tracking-tighter">
+        Under <span className="text-neon">Construction</span>
+      </h2>
+      <div className="w-24 h-1 bg-neon mb-8 rounded-full"></div>
+      <p className="text-gray-400 text-lg mb-8 max-w-md leading-relaxed">
+        Our love engineers are hard at work building a romantic virtual space for your digital dates.
+      </p>
+      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 rounded-full border border-gray-800 text-gray-500 text-sm">
+        <Zap className="w-4 h-4" /> Coming in Version 2.0
       </div>
     </div>
   );
 
   // -- Layout Wrapper --
+  if (view === AppView.LANDING) return <LandingPage onEnter={() => setView(AppView.LOGIN)} />;
   if (view === AppView.LOGIN) return renderLogin();
 
   return (
@@ -778,6 +1053,16 @@ export default function App() {
            </button>
 
            <button 
+             onClick={() => setView(AppView.VIRTUAL_DATE)}
+             className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-300 group ${
+               view === AppView.VIRTUAL_DATE ? 'bg-neon/10 text-neon border border-neon/20' : 'text-gray-400 hover:bg-gray-900 hover:text-white'
+             }`}
+           >
+             <CalendarHeart className="w-5 h-5" />
+             <span className="font-bold tracking-wide text-sm">Virtual Date</span>
+           </button>
+
+           <button 
              onClick={() => setView(AppView.PROFILE)}
              className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-300 group ${
                view === AppView.PROFILE ? 'bg-neon/10 text-neon border border-neon/20' : 'text-gray-400 hover:bg-gray-900 hover:text-white'
@@ -790,8 +1075,12 @@ export default function App() {
 
         <div className="p-6 border-t border-gray-900">
            <div className="flex items-center gap-3 px-4 py-3 bg-gray-900/50 rounded-xl border border-gray-800">
-              <div className="w-8 h-8 bg-gradient-to-br from-neon to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                 {currentUser?.anonymousId.slice(-2)}
+              <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gray-800 border border-gray-700">
+                 {currentUser?.avatar ? (
+                    <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                 ) : (
+                    <span className="text-white text-xs font-bold">{currentUser?.anonymousId.slice(-2)}</span>
+                 )}
               </div>
               <div className="flex-1 overflow-hidden">
                  <p className="text-sm font-bold text-white truncate">{currentUser?.realName}</p>
@@ -809,6 +1098,7 @@ export default function App() {
           {view === AppView.MATCHES && renderMatches()}
           {view === AppView.NOTIFICATIONS && renderNotifications()}
           {view === AppView.CHAT && renderChat()}
+          {view === AppView.VIRTUAL_DATE && renderVirtualDate()}
           {view === AppView.PROFILE && renderProfile()}
         </div>
 
@@ -846,6 +1136,16 @@ export default function App() {
                 )}
               </div>
               <span className="text-[10px] font-bold tracking-wider">ALERTS</span>
+            </button>
+
+            <button 
+              onClick={() => setView(AppView.VIRTUAL_DATE)}
+              className={`p-2 flex flex-col items-center gap-1 ${view === AppView.VIRTUAL_DATE ? 'text-neon' : 'text-gray-600'}`}
+            >
+              <div className={`p-1 rounded-xl ${view === AppView.VIRTUAL_DATE ? 'bg-neon/10' : ''}`}>
+                <CalendarHeart className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-bold tracking-wider">DATE</span>
             </button>
 
             <button 

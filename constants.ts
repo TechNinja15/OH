@@ -6,6 +6,17 @@ export const MOCK_INTERESTS = [
   "Reading", "Travel", "Fitness", "Coffee", "Startups", "AI"
 ];
 
+export const AVATAR_PRESETS = [
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Felix",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Willow",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Midnight",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Leo",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Cyber",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Ghost",
+  "https://api.dicebear.com/9.x/avataaars/svg?seed=Neon"
+];
+
 export const MOCK_MATCHES: MatchProfile[] = [
   {
     id: 'm1',
@@ -18,7 +29,8 @@ export const MOCK_MATCHES: MatchProfile[] = [
     bio: 'Looking for a study buddy who loves neural networks.',
     matchPercentage: 95,
     distance: '0.5 miles',
-    isVerified: true
+    isVerified: true,
+    avatar: AVATAR_PRESETS[0]
   },
   {
     id: 'm2',
@@ -31,20 +43,22 @@ export const MOCK_MATCHES: MatchProfile[] = [
     bio: 'I capture moments. Let’s find some neon lights.',
     matchPercentage: 88,
     distance: '1.2 miles',
-    isVerified: true
+    isVerified: true,
+    avatar: AVATAR_PRESETS[4]
   },
   {
     id: 'm3',
     anonymousId: 'User#L88Q',
     realName: 'Alex Rivera',
-    gender: 'Non-binary',
+    gender: 'Male',
     branch: 'Mechanical Eng',
     year: 'Sophomore',
     interests: ['Robotics', 'Formula 1', 'Gym'],
     bio: 'Building things that move fast.',
     matchPercentage: 82,
     distance: 'Campus Dorm A',
-    isVerified: true
+    isVerified: true,
+    avatar: AVATAR_PRESETS[5]
   },
   {
     id: 'm4',
@@ -57,7 +71,36 @@ export const MOCK_MATCHES: MatchProfile[] = [
     bio: 'Trying to understand how minds work.',
     matchPercentage: 75,
     distance: 'Library',
-    isVerified: true
+    isVerified: true,
+    avatar: AVATAR_PRESETS[2]
+  },
+  {
+    id: 'm5',
+    anonymousId: 'User#J77T',
+    realName: 'Jessica Lee',
+    gender: 'Female',
+    branch: 'Biology',
+    year: 'Senior',
+    interests: ['Hiking', 'Photography', 'Sushi'],
+    bio: 'Nature lover and science geek.',
+    matchPercentage: 90,
+    distance: '2.0 miles',
+    isVerified: true,
+    avatar: AVATAR_PRESETS[1]
+  },
+  {
+    id: 'm6',
+    anonymousId: 'User#D99R',
+    realName: 'David Kim',
+    gender: 'Male',
+    branch: 'Economics',
+    year: 'Junior',
+    interests: ['Finance', 'Basketball', 'Stocks'],
+    bio: 'Stonks only go up. Lets hoop.',
+    matchPercentage: 85,
+    distance: '1.0 miles',
+    isVerified: true,
+    avatar: AVATAR_PRESETS[6]
   }
 ];
 

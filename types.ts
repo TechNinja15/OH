@@ -10,6 +10,7 @@ export interface UserProfile {
   interests: string[];
   bio: string;
   isVerified: boolean;
+  avatar?: string; // New field for profile photo/avatar
 }
 
 export interface MatchProfile extends Omit<UserProfile, 'universityEmail'> {
@@ -44,11 +45,13 @@ export interface Notification {
 }
 
 export enum AppView {
+  LANDING = 'LANDING', // New Landing Page
   LOGIN = 'LOGIN',
   ONBOARDING = 'ONBOARDING',
   HOME = 'HOME',
   MATCHES = 'MATCHES',
   CHAT = 'CHAT',
+  VIRTUAL_DATE = 'VIRTUAL_DATE',
   PROFILE = 'PROFILE',
   NOTIFICATIONS = 'NOTIFICATIONS'
 }
