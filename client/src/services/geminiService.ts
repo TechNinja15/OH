@@ -1,10 +1,13 @@
+// techninja15/oh/OH-abc20e2212302874c05fe6b55be478c099119f93/client/src/services/geminiService.ts
+
 import { GoogleGenAI } from "@google/genai";
 import { MatchProfile } from "../types";
 
 const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
+  // FIX: Use Vite's method for client-side environment variables
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
   if (!apiKey) {
-    console.warn("API_KEY is not set. Gemini features will be disabled.");
+    console.warn("VITE_GEMINI_API_KEY is not set. Gemini features will be disabled.");
     return null;
   }
   return new GoogleGenAI({ apiKey });
@@ -31,7 +34,8 @@ export const generateIceBreaker = async (
       contents: prompt,
     });
 
-    return response.text.trim();
+    // Fix TS18048: Assert 'response.text' is not undefined
+    return response.text!.trim();
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Hey! What's your favorite thing about your major?";
@@ -59,7 +63,8 @@ export const checkCompatibility = async (
       contents: prompt,
     });
 
-    return response.text.trim();
+    // Fix TS18048: Assert 'response.text' is not undefined
+    return response.text!.trim();
   } catch (error) {
     return "You both seem to have unique tastes!";
   }

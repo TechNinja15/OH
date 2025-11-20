@@ -1,10 +1,11 @@
+// techninja15/oh/OH-abc20e2212302874c05fe6b55be478c099119f93/client/src/layouts/AppLayout.tsx
 
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCall } from '../context/CallContext';
 import { Ghost, Search, MessageCircle, Bell, CalendarHeart, User } from 'lucide-react';
-import { APP_NAME } from '../constants';
+// Removed: import { APP_NAME } from '../constants'; // Fix: TS6133
 import { VideoCall } from '../components/VideoCall';
 import { CallType } from '../types';
 import { dataService } from '../services/data';
