@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'; // <-- This should be at the top
 import React, { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, Smartphone, ShieldCheck } from 'lucide-react';
 
@@ -168,4 +169,3 @@ export const VideoCall: React.FC<VideoCallProps> = ({ isActive, onEndCall, remot
   );
 };
 
-import { Loader2 } from 'lucide-react';
