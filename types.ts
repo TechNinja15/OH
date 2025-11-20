@@ -1,6 +1,9 @@
+
 export interface UserProfile {
   id: string;
   anonymousId: string;
+  realName: string;
+  gender: string;
   universityEmail: string;
   branch: string;
   year: string;

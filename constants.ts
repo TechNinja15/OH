@@ -1,3 +1,4 @@
+
 import { MatchProfile, Notification } from './types';
 
 export const MOCK_INTERESTS = [
@@ -9,6 +10,8 @@ export const MOCK_MATCHES: MatchProfile[] = [
   {
     id: 'm1',
     anonymousId: 'User#X92A',
+    realName: 'Sarah Chen',
+    gender: 'Female',
     branch: 'Computer Science',
     year: 'Junior',
     interests: ['AI', 'Sci-Fi', 'Coffee'],
@@ -20,6 +23,8 @@ export const MOCK_MATCHES: MatchProfile[] = [
   {
     id: 'm2',
     anonymousId: 'User#B44Z',
+    realName: 'Marcus Cole',
+    gender: 'Male',
     branch: 'Fine Arts',
     year: 'Senior',
     interests: ['Photography', 'Indie Music', 'Travel'],
@@ -31,6 +36,8 @@ export const MOCK_MATCHES: MatchProfile[] = [
   {
     id: 'm3',
     anonymousId: 'User#L88Q',
+    realName: 'Alex Rivera',
+    gender: 'Non-binary',
     branch: 'Mechanical Eng',
     year: 'Sophomore',
     interests: ['Robotics', 'Formula 1', 'Gym'],
@@ -42,6 +49,8 @@ export const MOCK_MATCHES: MatchProfile[] = [
   {
     id: 'm4',
     anonymousId: 'User#K22P',
+    realName: 'Emily Watson',
+    gender: 'Female',
     branch: 'Psychology',
     year: 'Freshman',
     interests: ['Reading', 'Meditation', 'Jazz'],
