@@ -2,18 +2,12 @@ import { GoogleGenAI } from "@google/genai";
 import { MatchProfile } from "../types";
 
 const getAiClient = () => {
-<<<<<<< HEAD
-  const apiKey = process.env.API_KEY;
+  // 💡 CRITICAL FIX: Use Vite's method for client-side environment variables
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
   if (!apiKey) {
-    console.warn("API_KEY is not set. Gemini features will be disabled.");
+    console.warn("VITE_GEMINI_API_KEY is not set. Gemini features will be disabled.");
     return null;
   }
-=======
-  // 💡 CRITICAL FIX: Use Vite's environment variable access method
-  typescript const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
-      if (!apiKey) { console.warn("VITE_GEMINI_API_KEY is not set. Gemini features will be disabled."); 
-      return null; }
->>>>>>> e652fc5 (update)
   return new GoogleGenAI({ apiKey });
 };
 
