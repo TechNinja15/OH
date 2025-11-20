@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, Smartphone, ShieldCheck } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Smartphone, ShieldCheck, Loader2 } from 'lucide-react'; 
+
 
 interface VideoCallProps {
   isActive: boolean;
@@ -168,4 +169,3 @@ export const VideoCall: React.FC<VideoCallProps> = ({ isActive, onEndCall, remot
   );
 };
 
-import { Loader2 } from 'lucide-react';
