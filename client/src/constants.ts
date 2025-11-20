@@ -1,3 +1,4 @@
+
 import { MatchProfile, Notification } from './types';
 
 export const MOCK_INTERESTS = [
@@ -16,12 +17,46 @@ export const AVATAR_PRESETS = [
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Neon"
 ];
 
+export const CHHATTISGARH_COLLEGES = [
+  "National Institute of Technology (NIT), Raipur",
+  "Indian Institute of Management (IIM), Raipur",
+  "Indian Institute of Technology (IIT), Bhilai",
+  "International Institute of Information Technology (IIIT), Naya Raipur",
+  "Hidayatullah National Law University (HNLU), Raipur",
+  "All India Institute of Medical Sciences (AIIMS), Raipur",
+  "Pt. Ravishankar Shukla University (PRSU), Raipur",
+  "Chhattisgarh Swami Vivekanand Technical University (CSVTU), Bhilai",
+  "Guru Ghasidas Vishwavidyalaya (GGU), Bilaspur",
+  "Indira Gandhi Krishi Vishwavidyalaya (IGKV), Raipur",
+  "Kushabhau Thakre Journalism University (KTUJM), Raipur",
+  "Ayush and Health Sciences University of Chhattisgarh, Raipur",
+  "OP Jindal University, Raigarh",
+  "ITM University, Raipur",
+  "MATS University, Raipur",
+  "Kalinga University, Raipur",
+  "Amity University, Raipur",
+  "ICFAI University, Raipur",
+  "ISBM University, Gariyaband",
+  "Dr. C.V. Raman University, Bilaspur",
+  "Shri Shankaracharya Professional University, Bhilai",
+  "AAFT University, Raipur",
+  "Shri Rawatpura Sarkar University, Raipur",
+  "Bhilai Institute of Technology (BIT), Bhilai",
+  "Rungta College of Engineering and Technology, Bhilai",
+  "Government Engineering College (GEC), Raipur",
+  "Government Engineering College (GEC), Bilaspur",
+  "Government Engineering College (GEC), Jagdalpur",
+  "Pt. J.N.M. Medical College, Raipur",
+  "Other"
+];
+
 export const MOCK_MATCHES: MatchProfile[] = [
   {
     id: 'm1',
     anonymousId: 'User#X92A',
     realName: 'Sarah Chen',
     gender: 'Female',
+    university: 'National Institute of Technology (NIT), Raipur',
     branch: 'Computer Science',
     year: 'Junior',
     interests: ['AI', 'Sci-Fi', 'Coffee'],
@@ -36,6 +71,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     anonymousId: 'User#B44Z',
     realName: 'Marcus Cole',
     gender: 'Male',
+    university: 'AAFT University, Raipur',
     branch: 'Fine Arts',
     year: 'Senior',
     interests: ['Photography', 'Indie Music', 'Travel'],
@@ -50,6 +86,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     anonymousId: 'User#L88Q',
     realName: 'Alex Rivera',
     gender: 'Male',
+    university: 'Indian Institute of Technology (IIT), Bhilai',
     branch: 'Mechanical Eng',
     year: 'Sophomore',
     interests: ['Robotics', 'Formula 1', 'Gym'],
@@ -64,6 +101,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     anonymousId: 'User#K22P',
     realName: 'Emily Watson',
     gender: 'Female',
+    university: 'Pt. Ravishankar Shukla University (PRSU), Raipur',
     branch: 'Psychology',
     year: 'Freshman',
     interests: ['Reading', 'Meditation', 'Jazz'],
@@ -78,6 +116,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     anonymousId: 'User#J77T',
     realName: 'Jessica Lee',
     gender: 'Female',
+    university: 'AIIMS, Raipur',
     branch: 'Biology',
     year: 'Senior',
     interests: ['Hiking', 'Photography', 'Sushi'],
@@ -92,6 +131,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     anonymousId: 'User#D99R',
     realName: 'David Kim',
     gender: 'Male',
+    university: 'IIM Raipur',
     branch: 'Economics',
     year: 'Junior',
     interests: ['Finance', 'Basketball', 'Stocks'],

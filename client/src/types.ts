@@ -1,8 +1,10 @@
+
 export interface UserProfile {
   id: string;
   anonymousId: string;
   realName: string;
   gender: string;
+  university: string;
   universityEmail: string;
   branch: string;
   year: string;
@@ -41,18 +43,6 @@ export interface Notification {
   timestamp: number;
   read: boolean;
   type: 'match' | 'message' | 'system';
-}
-
-export enum AppView {
-  LANDING = 'LANDING',
-  LOGIN = 'LOGIN',
-  ONBOARDING = 'ONBOARDING',
-  HOME = 'HOME',
-  MATCHES = 'MATCHES',
-  CHAT = 'CHAT',
-  VIRTUAL_DATE = 'VIRTUAL_DATE',
-  PROFILE = 'PROFILE',
-  NOTIFICATIONS = 'NOTIFICATIONS'
 }
 
 export enum CallType {
