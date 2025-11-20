@@ -171,12 +171,12 @@ export default function App() {
   // -- Views --
 
   const renderLogin = () => (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-black p-6 relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-black p-6 relative overflow-hidden pb-20">
       {/* Background decorative elements */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon opacity-10 blur-[150px] rounded-full animate-pulse" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-600 opacity-10 blur-[150px] rounded-full animate-pulse" />
 
-      <div className="w-full max-w-md z-10 bg-gray-900/50 backdrop-blur-xl p-8 rounded-3xl border border-gray-800 shadow-2xl">
+      <div className="w-full max-w-md z-10 bg-gray-900/50 backdrop-blur-xl p-8 rounded-3xl border border-gray-800 shadow-2xl my-auto">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-black text-white mb-2 tracking-tighter flex flex-col items-center justify-center gap-2 uppercase">
             <span>Other</span>
@@ -311,7 +311,7 @@ export default function App() {
   const renderHome = () => {
     if (currentSwipeIndex >= matchQueue.length) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fade-in">
+        <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-fade-in pb-24 md:pb-8">
           <div className="w-32 h-32 bg-gray-900 rounded-full flex items-center justify-center mb-6 border border-gray-800 shadow-neon-sm">
              <RotateCcw className="w-12 h-12 text-neon" />
           </div>
@@ -327,15 +327,16 @@ export default function App() {
     const profile = matchQueue[currentSwipeIndex];
 
     return (
-      <div className="relative w-full h-full flex flex-col items-center justify-center p-4 overflow-hidden">
+      // Added pb-24 for mobile bottom nav clearance and changed justify-center to ensure content is visible
+      <div className="relative w-full h-full flex flex-col items-center justify-center p-4 overflow-hidden pb-28 md:pb-4">
          {/* Desktop Background Decor */}
          <div className="absolute inset-0 hidden md:block pointer-events-none opacity-20">
             <div className="absolute top-20 left-20 w-64 h-64 bg-neon rounded-full blur-[120px]" />
             <div className="absolute bottom-20 right-20 w-64 h-64 bg-blue-600 rounded-full blur-[120px]" />
          </div>
 
-         {/* Card Container */}
-         <div className="relative w-full md:w-[400px] h-[600px] md:h-[650px] flex-shrink-0">
+         {/* Card Container - Responsive Height using VH for mobile */}
+         <div className="relative w-full max-w-sm md:w-[400px] h-[55vh] min-h-[400px] md:h-[650px] flex-shrink-0 mt-4 md:mt-0">
             {/* Back Cards Stack Effect */}
             {currentSwipeIndex + 1 < matchQueue.length && (
                <div className="absolute inset-0 bg-gray-800 rounded-3xl transform scale-95 translate-y-4 opacity-50 border border-gray-700" />
@@ -364,11 +365,11 @@ export default function App() {
               </div>
 
               {/* Card Content */}
-              <div className="absolute bottom-0 left-0 right-0 z-20 p-8 bg-gradient-to-t from-black via-black/90 to-transparent pt-20">
+              <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-8 bg-gradient-to-t from-black via-black/90 to-transparent pt-20">
                  <div className="flex items-center justify-between mb-2">
-                   <h2 className="text-4xl font-black text-white italic tracking-tighter">{profile.anonymousId}</h2>
+                   <h2 className="text-3xl md:text-4xl font-black text-white italic tracking-tighter">{profile.anonymousId}</h2>
                    <div className="flex flex-col items-end">
-                     <span className="text-2xl font-bold text-neon">{profile.matchPercentage}%</span>
+                     <span className="text-xl md:text-2xl font-bold text-neon">{profile.matchPercentage}%</span>
                      <span className="text-[10px] text-gray-500 uppercase tracking-wider">Match</span>
                    </div>
                  </div>
@@ -383,15 +384,15 @@ export default function App() {
                     )}
                  </div>
 
-                 <div className="flex flex-wrap gap-2 mb-6">
-                   {profile.interests.map(i => (
-                     <span key={i} className="text-neon text-sm font-bold bg-neon/10 px-2 py-1 rounded">#{i}</span>
+                 <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+                   {profile.interests.slice(0, 4).map(i => (
+                     <span key={i} className="text-neon text-xs md:text-sm font-bold bg-neon/10 px-2 py-1 rounded">#{i}</span>
                    ))}
                  </div>
 
-                 <p className="text-gray-300 text-sm leading-relaxed mb-4 italic border-l-2 border-neon pl-3">"{profile.bio}"</p>
+                 <p className="text-gray-300 text-xs md:text-sm leading-relaxed mb-4 italic border-l-2 border-neon pl-3 line-clamp-3">"{profile.bio}"</p>
                  
-                 <p className="text-gray-500 text-xs flex items-center gap-2 mt-4">
+                 <p className="text-gray-500 text-xs flex items-center gap-2 mt-2">
                    <span className="w-2 h-2 rounded-full bg-green-500"></span> 
                    Active recently • {profile.distance} away
                  </p>
@@ -399,22 +400,22 @@ export default function App() {
             </div>
          </div>
 
-         {/* Controls - Responsive */}
-         <div className="flex items-center gap-6 mt-8 z-30">
+         {/* Controls - Responsive with Margin Bottom for Nav */}
+         <div className="flex items-center gap-8 mt-6 md:mt-8 z-30">
             <button 
               onClick={() => handleSwipe('left')}
-              className="group relative p-6 rounded-full bg-gray-900/80 backdrop-blur border border-gray-700 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all hover:scale-110 shadow-lg"
+              className="group relative p-5 md:p-6 rounded-full bg-gray-900/80 backdrop-blur border border-gray-700 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all hover:scale-110 shadow-lg active:scale-95"
+              aria-label="Pass"
             >
               <X className="w-8 h-8" />
-              <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Pass</span>
             </button>
             
             <button 
               onClick={() => handleSwipe('right')}
-              className="group relative p-6 rounded-full bg-gray-900/80 backdrop-blur border border-neon text-neon hover:bg-neon hover:text-white hover:shadow-[0_0_30px_#ff007f] transition-all hover:scale-110 shadow-lg"
+              className="group relative p-5 md:p-6 rounded-full bg-gray-900/80 backdrop-blur border border-neon text-neon hover:bg-neon hover:text-white hover:shadow-[0_0_30px_#ff007f] transition-all hover:scale-110 shadow-lg active:scale-95"
+              aria-label="Like"
             >
               <Heart className="w-8 h-8 fill-current" />
-              <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Like</span>
             </button>
          </div>
       </div>
@@ -429,7 +430,8 @@ export default function App() {
         </h2>
       </div>
       
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+      {/* Added pb-24 for mobile nav clearance */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 pb-24 md:pb-4">
         {matches.length === 0 ? (
           <div className="text-gray-500 text-center mt-20 flex flex-col items-center">
             <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center mb-4">
@@ -498,7 +500,8 @@ export default function App() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+        {/* Added pb-24 for mobile nav clearance */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 pb-24 md:pb-4">
           {notifications.length === 0 ? (
             <div className="text-center py-20 text-gray-600">
               <Bell className="w-16 h-16 mx-auto mb-6 opacity-20" />
@@ -641,7 +644,7 @@ export default function App() {
         </div>
 
         {/* Input */}
-        <div className="p-4 bg-black border-t border-gray-800">
+        <div className="p-4 bg-black border-t border-gray-800 pb-safe">
            <div className="flex gap-3 items-end max-w-4xl mx-auto">
              <div className="flex-1 bg-gray-900 border border-gray-800 rounded-2xl px-4 py-2 focus-within:border-neon focus-within:shadow-neon-sm transition-all flex items-center gap-2">
                <input 
@@ -667,7 +670,8 @@ export default function App() {
   };
 
   const renderProfile = () => (
-    <div className="h-full flex flex-col p-6 overflow-y-auto custom-scrollbar">
+    // Added pb-24 for mobile nav clearance
+    <div className="h-full flex flex-col p-6 overflow-y-auto custom-scrollbar pb-24 md:pb-6">
       <h2 className="text-3xl font-black mb-8">My Profile</h2>
       
       <div className="bg-gray-900/50 border border-gray-800 p-8 rounded-3xl relative overflow-hidden mb-6">
