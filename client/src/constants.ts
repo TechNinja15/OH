@@ -7,14 +7,16 @@ export const MOCK_INTERESTS = [
 ];
 
 export const AVATAR_PRESETS = [
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Felix",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Willow",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Midnight",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Leo",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Cyber",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Ghost",
-  "https://api.dicebear.com/9.x/avataaars/svg?seed=Neon"
+  // Female-leaning seeds (Indices 0-3)
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Lola",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Zoe",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Mila",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Sara",
+  // Male-leaning seeds (Indices 4-7)
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Leo",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Ryan",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Caleb",
+  "https://api.dicebear.com/9.x/notionists/svg?seed=Nathan"
 ];
 
 export const CHHATTISGARH_COLLEGES = [
@@ -64,7 +66,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     matchPercentage: 95,
     distance: '0.5 miles',
     isVerified: true,
-    avatar: AVATAR_PRESETS[0]
+    avatar: AVATAR_PRESETS[0] // Lola
   },
   {
     id: 'm2',
@@ -79,7 +81,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     matchPercentage: 88,
     distance: '1.2 miles',
     isVerified: true,
-    avatar: AVATAR_PRESETS[4]
+    avatar: AVATAR_PRESETS[4] // Leo
   },
   {
     id: 'm3',
@@ -94,7 +96,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     matchPercentage: 82,
     distance: 'Campus Dorm A',
     isVerified: true,
-    avatar: AVATAR_PRESETS[5]
+    avatar: AVATAR_PRESETS[5] // Ryan
   },
   {
     id: 'm4',
@@ -109,7 +111,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     matchPercentage: 75,
     distance: 'Library',
     isVerified: true,
-    avatar: AVATAR_PRESETS[2]
+    avatar: AVATAR_PRESETS[2] // Mila
   },
   {
     id: 'm5',
@@ -124,7 +126,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     matchPercentage: 90,
     distance: '2.0 miles',
     isVerified: true,
-    avatar: AVATAR_PRESETS[1]
+    avatar: AVATAR_PRESETS[1] // Zoe
   },
   {
     id: 'm6',
@@ -139,7 +141,7 @@ export const MOCK_MATCHES: MatchProfile[] = [
     matchPercentage: 85,
     distance: '1.0 miles',
     isVerified: true,
-    avatar: AVATAR_PRESETS[6]
+    avatar: AVATAR_PRESETS[6] // Caleb
   }
 ];
 
