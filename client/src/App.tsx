@@ -13,6 +13,7 @@ import { Notifications } from './pages/Notifications';
 import { VirtualDate } from './pages/VirtualDate';
 import { Profile } from './pages/Profile';
 import { Developers } from './pages/Developers';
+import { Confessions } from './pages/Confessions';
 import { About, Careers, Contact, Privacy, Terms, Safety, Guidelines } from './pages/StaticPages';
 import { IntroAnimation } from './components/IntroAnimation';
 import { Loader2 } from 'lucide-react';
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/virtual-date" element={<VirtualDate />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/confessions" element={<Confessions />} />
       </Route>
 
       {/* Catch all */}

@@ -12,6 +12,7 @@ export interface UserProfile {
   bio: string;
   isVerified: boolean;
   avatar?: string;
+  isPremium?: boolean; // New field for premium status
 }
 
 export interface MatchProfile extends Omit<UserProfile, 'universityEmail'> {
@@ -43,6 +44,16 @@ export interface Notification {
   timestamp: number;
   read: boolean;
   type: 'match' | 'message' | 'system';
+}
+
+export interface Confession {
+  id: string;
+  userId: string; // Anonymous ID of poster
+  text: string;
+  imageUrl?: string;
+  timestamp: number;
+  likes: number;
+  university: string;
 }
 
 export enum CallType {

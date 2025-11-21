@@ -1,5 +1,5 @@
 
-import { MatchProfile, ChatSession, Notification, UserProfile } from '../types';
+import { MatchProfile, ChatSession, Notification, UserProfile, Confession } from '../types';
 import { MOCK_MATCHES, MOCK_NOTIFICATIONS } from '../constants';
 
 // Simple in-memory store with local storage persistence simulation for the demo
@@ -7,25 +7,50 @@ class DataService {
   private matches: MatchProfile[] = [];
   private chatSessions: Record<string, ChatSession> = {};
   private notifications: Notification[] = [...MOCK_NOTIFICATIONS];
+  private confessions: Confession[] = [];
 
   constructor() {
     this.loadFromStorage();
+    if (this.confessions.length === 0) {
+        // Add some mock confessions for Amity
+        this.confessions = [
+            {
+                id: 'c1',
+                userId: 'User#A111',
+                text: 'Does anyone else think the library AC is set to arctic mode? 🥶',
+                timestamp: Date.now() - 1000000,
+                likes: 12,
+                university: 'Amity University, Raipur'
+            },
+            {
+                id: 'c2',
+                userId: 'User#B222',
+                text: 'Saw the cutest person in the canteen today but was too shy to say hi. If you were wearing a red hoodie, hmu.',
+                timestamp: Date.now() - 5000000,
+                likes: 45,
+                university: 'Amity University, Raipur'
+            }
+        ];
+    }
   }
 
   private loadFromStorage() {
     const storedMatches = localStorage.getItem('oh_matches');
     const storedChats = localStorage.getItem('oh_chats');
     const storedNotifs = localStorage.getItem('oh_notifications');
+    const storedConfessions = localStorage.getItem('oh_confessions');
 
     if (storedMatches) this.matches = JSON.parse(storedMatches);
     if (storedChats) this.chatSessions = JSON.parse(storedChats);
     if (storedNotifs) this.notifications = JSON.parse(storedNotifs);
+    if (storedConfessions) this.confessions = JSON.parse(storedConfessions);
   }
 
   private saveToStorage() {
     localStorage.setItem('oh_matches', JSON.stringify(this.matches));
     localStorage.setItem('oh_chats', JSON.stringify(this.chatSessions));
     localStorage.setItem('oh_notifications', JSON.stringify(this.notifications));
+    localStorage.setItem('oh_confessions', JSON.stringify(this.confessions));
   }
 
   // Matches
@@ -97,6 +122,24 @@ class DataService {
     this.saveToStorage();
   }
 
+  // Confessions
+  getConfessions(university: string) {
+      return this.confessions.filter(c => c.university === university).sort((a, b) => b.timestamp - a.timestamp);
+  }
+
+  addConfession(confession: Confession) {
+      this.confessions = [confession, ...this.confessions];
+      this.saveToStorage();
+  }
+
+  likeConfession(confessionId: string) {
+      const conf = this.confessions.find(c => c.id === confessionId);
+      if (conf) {
+          conf.likes += 1;
+          this.saveToStorage();
+      }
+  }
+
   // Queue Logic
   getMatchQueue(user: UserProfile) {
     const targetGender = user.gender === 'Male' ? 'Female' : 'Male';
@@ -113,6 +156,7 @@ class DataService {
       this.matches = [];
       this.chatSessions = {};
       this.notifications = [...MOCK_NOTIFICATIONS];
+      this.confessions = [];
       this.saveToStorage();
   }
 }
