@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { AppLayout } from './layouts/AppLayout';
@@ -12,6 +12,8 @@ import { Chat } from './pages/Chat';
 import { Notifications } from './pages/Notifications';
 import { VirtualDate } from './pages/VirtualDate';
 import { Profile } from './pages/Profile';
+import { Developers } from './pages/Developers';
+import { IntroAnimation } from './components/IntroAnimation';
 import { Loader2 } from 'lucide-react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -33,12 +35,30 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    // Check if we've already shown intro this session (optional, here we show it every refresh for effect as requested)
+    // const hasShown = sessionStorage.getItem('hasShownIntro');
+    // if (hasShown) setShowIntro(false);
+  }, []);
+
+  const handleIntroComplete = () => {
+    // sessionStorage.setItem('hasShownIntro', 'true');
+    setShowIntro(false);
+  };
+
+  if (showIntro) {
+    return <IntroAnimation onComplete={handleIntroComplete} />;
+  }
+
   return (
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/developers" element={<Developers />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

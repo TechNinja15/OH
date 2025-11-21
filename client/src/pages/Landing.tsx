@@ -2,7 +2,7 @@
 import React from 'react';
 import { Ghost, Heart, Shield, ArrowRight, Instagram, Twitter } from 'lucide-react';
 import { NeonButton } from '../components/Common';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -122,8 +122,8 @@ export const Landing: React.FC = () => {
                     <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-6">Company</h4>
                     <ul className="space-y-3 text-sm text-gray-500">
                         <li><a href="#" className="hover:text-neon transition-colors">About Us</a></li>
+                        <li><Link to="/developers" className="hover:text-neon transition-colors">Meet the Developers</Link></li>
                         <li><a href="#" className="hover:text-neon transition-colors">Careers</a></li>
-                        <li><a href="#" className="hover:text-neon transition-colors">Blog</a></li>
                         <li><a href="#" className="hover:text-neon transition-colors">Contact</a></li>
                     </ul>
                 </div>

@@ -1,7 +1,6 @@
-// techninja15/oh/OH-abc20e2212302874c05fe6b55be478c099119f93/client/src/pages/Matches.tsx
 
 import React, { useEffect, useState } from 'react';
-import { MatchProfile } from '../types'; // Fix: TS6133, removed ChatSession
+import { MatchProfile, ChatSession } from '../types';
 import { dataService } from '../services/data';
 import { Heart, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
