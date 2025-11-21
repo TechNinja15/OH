@@ -22,13 +22,13 @@ export const Landing: React.FC = () => {
       <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(50, 50, 50, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(50, 50, 50, 0.5) 1px, transparent 1px)', backgroundSize: '50px 50px' }}></div>
 
       <nav className="relative z-20 px-6 py-8 flex justify-between items-center max-w-7xl mx-auto w-full">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
           <Ghost className="w-8 h-8 text-neon" />
           <span className="text-2xl font-black tracking-tighter">OTHER<span className="text-neon">HALF</span></span>
         </div>
         <div className="hidden md:flex gap-8 text-sm font-bold text-gray-400 uppercase tracking-widest">
           <a href="#features" className="hover:text-neon transition-colors">Features</a>
-          <a href="#safety" className="hover:text-neon transition-colors">Safety</a>
+          <Link to="/safety" className="hover:text-neon transition-colors">Safety</Link>
         </div>
         <NeonButton onClick={onEnter} variant="secondary" className="text-xs px-6">
           Log In
@@ -97,7 +97,7 @@ export const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                 <div className="col-span-1 md:col-span-2">
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-4 cursor-pointer" onClick={() => navigate('/')}>
                         <Ghost className="w-6 h-6 text-neon" />
                         <span className="font-black tracking-tighter text-xl text-white">OTHER<span className="text-neon">HALF</span></span>
                     </div>
@@ -112,35 +112,35 @@ export const Landing: React.FC = () => {
                         <a href="#" className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-gray-400 hover:bg-neon hover:text-white transition-all">
                             <Twitter className="w-5 h-5" />
                         </a>
-                        <a href="#" className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-gray-400 hover:bg-neon hover:text-white transition-all">
+                        <Link to="/about" className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-gray-400 hover:bg-neon hover:text-white transition-all">
                              <Ghost className="w-5 h-5" />
-                        </a>
+                        </Link>
                     </div>
                 </div>
                 
                 <div>
                     <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-6">Company</h4>
                     <ul className="space-y-3 text-sm text-gray-500">
-                        <li><a href="#" className="hover:text-neon transition-colors">About Us</a></li>
+                        <li><Link to="/about" className="hover:text-neon transition-colors">About Us</Link></li>
                         <li><Link to="/developers" className="hover:text-neon transition-colors">Meet the Developers</Link></li>
-                        <li><a href="#" className="hover:text-neon transition-colors">Careers</a></li>
-                        <li><a href="#" className="hover:text-neon transition-colors">Contact</a></li>
+                        <li><Link to="/careers" className="hover:text-neon transition-colors">Careers</Link></li>
+                        <li><Link to="/contact" className="hover:text-neon transition-colors">Contact</Link></li>
                     </ul>
                 </div>
 
                 <div>
                     <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-6">Legal</h4>
                     <ul className="space-y-3 text-sm text-gray-500">
-                        <li><a href="#" className="hover:text-neon transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" className="hover:text-neon transition-colors">Terms of Service</a></li>
-                        <li><a href="#" className="hover:text-neon transition-colors">Safety Tips</a></li>
-                        <li><a href="#" className="hover:text-neon transition-colors">Community Guidelines</a></li>
+                        <li><Link to="/privacy" className="hover:text-neon transition-colors">Privacy Policy</Link></li>
+                        <li><Link to="/terms" className="hover:text-neon transition-colors">Terms of Service</Link></li>
+                        <li><Link to="/safety" className="hover:text-neon transition-colors">Safety Tips</Link></li>
+                        <li><Link to="/guidelines" className="hover:text-neon transition-colors">Community Guidelines</Link></li>
                     </ul>
                 </div>
             </div>
 
             <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-gray-600 text-xs">&copy; 2024 Other Half Inc. All rights reserved.</p>
+                <p className="text-gray-600 text-xs">&copy; {new Date().getFullYear()} Other Half Inc. All rights reserved.</p>
                 <p className="text-gray-500 text-xs font-medium flex items-center gap-1">
                     Built with <Heart className="w-3 h-3 text-neon fill-current animate-pulse" /> by The Dev Team
                 </p>

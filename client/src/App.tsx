@@ -13,6 +13,7 @@ import { Notifications } from './pages/Notifications';
 import { VirtualDate } from './pages/VirtualDate';
 import { Profile } from './pages/Profile';
 import { Developers } from './pages/Developers';
+import { About, Careers, Contact, Privacy, Terms, Safety, Guidelines } from './pages/StaticPages';
 import { IntroAnimation } from './components/IntroAnimation';
 import { Loader2 } from 'lucide-react';
 
@@ -59,6 +60,15 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/developers" element={<Developers />} />
+      
+      {/* Static Pages */}
+      <Route path="/about" element={<About />} />
+      <Route path="/careers" element={<Careers />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/safety" element={<Safety />} />
+      <Route path="/guidelines" element={<Guidelines />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
